@@ -7,6 +7,19 @@ import { Send, X, Trophy, ArrowLeft, RefreshCcw } from 'lucide-react';
 import { personalities, scenarios } from '@/lib/data';
 import Link from 'next/link';
 
+// Whether the screen is considered mobile (< 768px)
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -34,6 +47,9 @@ export default function ChatArena() {
   const [round, setRound] = useState(1);
   
   const [userRole, setUserRole] = useState<string>('');
+  const [mobileTab, setMobileTab] = useState<string>('');
+
+  const isMobile = useIsMobile();
 
   // Create refs for each column
   const columnRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -46,6 +62,7 @@ export default function ChatArena() {
       return;
     }
     setActivePersonalities(pIds);
+    setMobileTab(pIds[0]);
     setScenarioId(sId);
     
     const scenario = scenarios.find((s) => s.id === sId);
@@ -105,7 +122,14 @@ export default function ChatArena() {
   };
 
   const handleEliminate = (id: string) => {
-    setActivePersonalities((prev) => prev.filter((p) => p !== id));
+    setActivePersonalities((prev) => {
+      const next = prev.filter((p) => p !== id);
+      // If eliminating the currently viewed mobile tab, switch to first remaining
+      if (id === mobileTab && next.length > 0) {
+        setMobileTab(next[0]);
+      }
+      return next;
+    });
   };
 
   const handleSend = async (forcedText?: string) => {
@@ -219,25 +243,63 @@ export default function ChatArena() {
 
       </header>
 
-      {/* Parallel Chat Columns Area */}
+      {/* Mobile Tab Bar */}
+      {isMobile && (
+        <div className="flex border-b border-slate-200 bg-white shrink-0 z-10">
+          {activePersonalities.map((pid) => {
+            const p = personalities.find(x => x.id === pid);
+            if (!p) return null;
+            const isActive = mobileTab === pid;
+            return (
+              <button
+                key={pid}
+                onClick={() => setMobileTab(pid)}
+                className={`flex-1 flex flex-col items-center py-2 px-1 transition-colors relative ${isActive ? 'text-slate-800' : 'text-slate-400'}`}
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm border-2 border-white shadow-sm"
+                  style={{ backgroundColor: `${p.color}30` }}
+                >
+                  {p.imageUrl ? (
+                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover rounded-full" />
+                  ) : (
+                    <span>{p.emoji}</span>
+                  )}
+                </div>
+                <span className="text-[10px] font-bold mt-0.5 truncate max-w-full px-1">{p.name}</span>
+                {isActive && (
+                  <motion.div
+                    layoutId="mobileTabIndicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                    style={{ backgroundColor: p.color }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Chat Area: Desktop = parallel columns, Mobile = single tab view */}
       <div className="flex-1 flex overflow-hidden bg-slate-50/50 pb-28">
         <AnimatePresence>
           {activePersonalities.map((pid, idx) => {
             const p = personalities.find(x => x.id === pid);
             if (!p) return null;
-            
+
+            // On mobile, only render the active tab
+            if (isMobile && pid !== mobileTab) return null;
+
             return (
               <motion.div 
                 key={pid}
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: `${100 / activePersonalities.length}%` }}
-                exit={{ opacity: 0, width: 0 }}
+                initial={{ opacity: 0, width: isMobile ? '100%' : 0 }}
+                animate={{ opacity: 1, width: isMobile ? '100%' : `${100 / activePersonalities.length}%` }}
+                exit={{ opacity: 0, width: isMobile ? '100%' : 0 }}
                 className={`flex flex-col h-full border-r border-slate-200/60 relative ${idx === activePersonalities.length - 1 ? 'border-r-0' : ''}`}
               >
-                {/* Column Header: Personality Info */}
-                <div 
-                  className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm border-b border-slate-100 shrink-0 z-10"
-                >
+                {/* Column Header: Personality Info — hidden on mobile (tab bar replaces it) */}
+                <div className={`flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm border-b border-slate-100 shrink-0 z-10 ${isMobile ? 'hidden' : 'flex'}`}>
                   <div className="flex items-center space-x-3">
                     <div 
                       className="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm border-2 border-white"
@@ -260,15 +322,40 @@ export default function ChatArena() {
                   {!winner && activePersonalities.length > 1 && (
                     <button 
                       onClick={() => handleEliminate(pid)}
-                      className="flex items-center justify-center space-x-1 px-3 py-1.5 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors shadow-sm font-bold text-xs group/btn"
+                      className="flex items-center justify-center space-x-1 px-3 py-1.5 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors shadow-sm font-bold text-xs"
                       title="淘汰 TA"
                     >
                       <X className="w-3 h-3" />
-                      {/* Eliminate Button */}
                       <span className="hidden sm:inline">淘汰 TA</span>
                     </button>
                   )}
                 </div>
+
+                {/* Mobile column header: inline eliminate button */}
+                {isMobile && !winner && activePersonalities.length > 1 && (
+                  <div className="flex items-center justify-between px-4 py-2 bg-white/80 border-b border-slate-100 shrink-0">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs" style={{ backgroundColor: `${p.color}30` }}>
+                        {p.imageUrl ? (
+                          <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                          <span>{p.emoji}</span>
+                        )}
+                      </div>
+                      <span className="font-black text-sm text-slate-800">{p.name}</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white" style={{ backgroundColor: p.color }}>
+                        {p.title}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => handleEliminate(pid)}
+                      className="flex items-center space-x-1 px-3 py-1.5 rounded-full bg-red-50 text-red-500 active:bg-red-500 active:text-white transition-colors font-bold text-xs"
+                    >
+                      <X className="w-3 h-3" />
+                      <span>淘汰 TA</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Column Messages */}
                 <div 
@@ -311,7 +398,7 @@ export default function ChatArena() {
                       )}
                     </div>
                   ))}
-                  <div className="h-4" /> {/* Bottom spacer */}
+                  <div className="h-4" />
                 </div>
               </motion.div>
             );
@@ -385,7 +472,7 @@ export default function ChatArena() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder={`群发给 ${activePersonalities.length} 个人格...`}
+                  placeholder={isMobile && activePersonalities.length > 1 ? `同时发给全部 ${activePersonalities.length} 位...` : `群发给 ${activePersonalities.length} 个人格...`}
                   disabled={loading}
                   className="flex-1 bg-transparent px-4 py-2 outline-none text-slate-800 font-medium placeholder:text-slate-400 disabled:opacity-50 text-base"
                   autoFocus
