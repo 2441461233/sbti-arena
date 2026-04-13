@@ -26,7 +26,7 @@ export default function PersonalitiesPage() {
                 style={{ backgroundColor: `${p.color}40` }}
               >
                 <div 
-                  className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-4xl shadow-md border-4 border-white absolute -bottom-10 transition-transform group-hover:scale-105"
+                  className="w-20 h-20 bg-white rounded-full overflow-hidden flex items-center justify-center text-4xl shadow-md border-4 border-white absolute -bottom-10 transition-transform group-hover:scale-105"
                   style={{ color: p.color }}
                 >
                   {p.imageUrl ? (

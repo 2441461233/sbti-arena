@@ -61,7 +61,7 @@ export default async function Home() {
             <div className="flex flex-col items-center justify-end w-1/3 sm:w-32 h-full group">
               <div className="relative mb-3 flex flex-col items-center group-hover:-translate-y-2 transition-transform">
                 <div 
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-3xl sm:text-4xl shadow-[0_4px_15px_rgb(203,213,225,0.6)] border-4 border-slate-300 z-10 relative mt-2"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden flex items-center justify-center text-3xl sm:text-4xl shadow-[0_4px_15px_rgb(203,213,225,0.6)] border-4 border-slate-300 z-10 relative mt-2"
                   style={{ backgroundColor: `${top3[1].color}30` }}
                 >
                   {top3[1].imageUrl ? (
@@ -78,7 +78,7 @@ export default async function Home() {
                   <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full text-white shadow-sm" style={{ backgroundColor: top3[1].color }}>
                     {top3[1].title}
                   </span>
-                  <span className="text-xs font-bold text-slate-500 pt-0.5">{top3[1].score} pts</span>
+                  <span className="text-xs font-bold text-slate-500 pt-0.5">{top3[1].score} WINS</span>
                 </div>
               </div>
               <div className="w-full bg-gradient-to-t from-slate-300 to-slate-100 rounded-t-2xl border-t border-x border-white shadow-[inset_0_4px_12px_rgb(0,0,0,0.04)] h-[100px] flex items-start justify-center pt-3 relative overflow-hidden">
@@ -94,7 +94,7 @@ export default async function Home() {
                 {/* Crown */}
                 <div className="text-2xl sm:text-3xl mb-1 drop-shadow-md animate-bounce" style={{ animationDuration: '2.5s' }}>👑</div>
                 <div 
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-4xl sm:text-5xl shadow-[0_8px_24px_rgb(250,204,21,0.55)] border-4 border-yellow-400 z-10 relative"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden flex items-center justify-center text-4xl sm:text-5xl shadow-[0_8px_24px_rgb(250,204,21,0.55)] border-4 border-yellow-400 z-10 relative"
                   style={{ backgroundColor: `${top3[0].color}40` }}
                 >
                   {top3[0].imageUrl ? (
@@ -112,7 +112,7 @@ export default async function Home() {
                   <span className="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full text-white shadow-sm" style={{ backgroundColor: top3[0].color }}>
                     {top3[0].title}
                   </span>
-                  <span className="text-sm font-bold text-yellow-600 pt-0.5">{top3[0].score} pts</span>
+                  <span className="text-sm font-bold text-yellow-600 pt-0.5">{top3[0].score} WINS</span>
                 </div>
               </div>
               <div className="w-full bg-gradient-to-t from-yellow-400 via-yellow-200 to-yellow-100 rounded-t-3xl border-t-2 border-x-2 border-white shadow-[inset_0_4px_14px_rgb(0,0,0,0.06)] h-[165px] flex items-start justify-center pt-5 sm:pt-7 relative overflow-hidden">
@@ -127,7 +127,7 @@ export default async function Home() {
             <div className="flex flex-col items-center justify-end w-1/3 sm:w-32 h-full group">
               <div className="relative mb-3 flex flex-col items-center group-hover:-translate-y-2 transition-transform">
                 <div 
-                  className="w-14 h-14 sm:w-18 sm:h-18 rounded-full flex items-center justify-center text-2xl sm:text-3xl shadow-[0_4px_12px_rgb(205,127,50,0.35)] border-4 border-[#CD7F32] z-10 relative mt-2"
+                  className="w-14 h-14 sm:w-18 sm:h-18 rounded-full overflow-hidden flex items-center justify-center text-2xl sm:text-3xl shadow-[0_4px_12px_rgb(205,127,50,0.35)] border-4 border-[#CD7F32] z-10 relative mt-2"
                   style={{ backgroundColor: `${top3[2].color}30` }}
                 >
                   {top3[2].imageUrl ? (
@@ -144,7 +144,7 @@ export default async function Home() {
                   <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white shadow-sm" style={{ backgroundColor: top3[2].color }}>
                     {top3[2].title}
                   </span>
-                  <span className="text-xs font-bold text-slate-400 pt-0.5">{top3[2].score} pts</span>
+                  <span className="text-xs font-bold text-slate-400 pt-0.5">{top3[2].score} WINS</span>
                 </div>
               </div>
               <div className="w-full bg-gradient-to-t from-orange-200 to-orange-50 rounded-t-xl border-t border-x border-white shadow-[inset_0_4px_10px_rgb(0,0,0,0.02)] h-[55px] flex items-start justify-center pt-1.5 relative overflow-hidden">

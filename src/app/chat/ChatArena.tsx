@@ -279,7 +279,7 @@ export default function ChatArena() {
               className={`flex-1 flex flex-col items-center py-2 px-1 transition-colors relative ${isActive ? 'text-slate-800' : 'text-slate-400'}`}
             >
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-sm border-2 border-white shadow-sm"
+                className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-sm border-2 border-white shadow-sm"
                 style={{ backgroundColor: `${p.color}30` }}
               >
                 {p.imageUrl ? (
@@ -331,7 +331,7 @@ export default function ChatArena() {
                 <div className="hidden md:flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm border-b border-slate-100 shrink-0 z-10">
                   <div className="flex items-center space-x-3">
                     <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm border-2 border-white"
+                      className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-lg shadow-sm border-2 border-white"
                       style={{ backgroundColor: `${p.color}30` }}
                     >
                       {p.imageUrl ? (

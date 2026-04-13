@@ -102,7 +102,7 @@ export default function SelectPage() {
                         )}
                         
                         <div 
-                          className="w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-inner border-4 border-white mb-3"
+                          className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center text-3xl shadow-inner border-4 border-white mb-3"
                           style={{ backgroundColor: `${p.color}30` }}
                         >
                           {p.imageUrl ? (

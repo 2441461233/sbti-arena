@@ -18,11 +18,13 @@
 
 推荐选项（按性价比排序）：
 
-| 平台 | 网址 | 特点 |
-|------|------|------|
-| **Cloudflare Registrar** | https://www.cloudflare.com/products/registrar/ | 成本价，无溢价，约 $10/年，直接托管在 Cloudflare，省去迁移步骤 |
-| Namecheap | https://www.namecheap.com/ | 老牌注册商，第一年常有优惠 |
-| GoDaddy | https://www.godaddy.com/ | 知名度高，但续费较贵 |
+
+| 平台                       | 网址                                                                                               | 特点                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| **Cloudflare Registrar** | [https://www.cloudflare.com/products/registrar/](https://www.cloudflare.com/products/registrar/) | 成本价，无溢价，约 $10/年，直接托管在 Cloudflare，省去迁移步骤 |
+| Namecheap                | [https://www.namecheap.com/](https://www.namecheap.com/)                                         | 老牌注册商，第一年常有优惠                           |
+| GoDaddy                  | [https://www.godaddy.com/](https://www.godaddy.com/)                                             | 知名度高，但续费较贵                              |
+
 
 **推荐购买 `.com` 域名**，例如 `sbti-arena.com`。  
 **不要购买 `.cn`**（需要 ICP 备案）。
@@ -39,10 +41,10 @@
 2. 点击「Add a Site」，输入你的域名
 3. 选择 **Free** 套餐
 4. Cloudflare 会给你两个 NS 记录，例如：
-   ```
+  ```
    ada.ns.cloudflare.com
    ben.ns.cloudflare.com
-   ```
+  ```
 5. 登录你购买域名的注册商控制台，将 **Nameservers** 改为 Cloudflare 给出的两个 NS
 6. 等待 NS 生效（通常 5 分钟到 1 小时）
 
@@ -54,8 +56,8 @@
 2. 点击 **Settings** → **Domains**
 3. 点击 **Add**，输入你购买的域名，例如 `sbti-arena.com`
 4. Vercel 会给出验证方式，通常是：
-   - **CNAME 记录**：`www` → `cname.vercel-dns.com`
-   - **A 记录**（根域名）：`@` → `76.76.21.21`
+  - **CNAME 记录**：`www` → `cname.vercel-dns.com`
+  - **A 记录**（根域名）：`@` → `76.76.21.21`
 
 ---
 
@@ -63,10 +65,12 @@
 
 进入 Cloudflare 控制台 → 你的域名 → **DNS** 页面，添加以下记录：
 
-| 类型 | 名称 | 值 | 代理状态 |
-|------|------|-----|----------|
-| A | `@` | `76.76.21.21` | **橙云 ✓（已代理）** |
+
+| 类型    | 名称    | 值                      | 代理状态          |
+| ----- | ----- | ---------------------- | ------------- |
+| A     | `@`   | `76.76.21.21`          | **橙云 ✓（已代理）** |
 | CNAME | `www` | `cname.vercel-dns.com` | **橙云 ✓（已代理）** |
+
 
 > ⚠️ **关键**：必须点亮橙色云朵图标（Proxied），这样流量才会经过 Cloudflare 的 CDN，大陆才能访问。  
 > 如果是灰色云朵（DNS only），Cloudflare 只做 DNS 解析，大陆仍然无法访问。
@@ -109,11 +113,13 @@ A: NS 迁移最长 48 小时，但通常在 1 小时内完成。DNS 记录添加
 
 ## 费用汇总
 
-| 项目 | 费用 |
-|------|------|
+
+| 项目                            | 费用                |
+| ----------------------------- | ----------------- |
 | 域名（.com，Cloudflare Registrar） | 约 $10/年（≈ 70 元/年） |
-| Cloudflare CDN 代理 | **免费** |
-| Vercel 绑定自定义域名 | **免费** |
-| SSL 证书 | **免费** |
+| Cloudflare CDN 代理             | **免费**            |
+| Vercel 绑定自定义域名                | **免费**            |
+| SSL 证书                        | **免费**            |
+
 
 **总计：约 70 元/年即可解决大陆访问问题。**

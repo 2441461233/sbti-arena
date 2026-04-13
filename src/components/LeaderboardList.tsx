@@ -52,7 +52,7 @@ export default function LeaderboardList({ initialItems }: { initialItems: any[] 
                     </div>
                     
                     <div 
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xl sm:text-2xl shadow-inner border-2 border-white relative z-10 flex-shrink-0"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden flex items-center justify-center text-xl sm:text-2xl shadow-inner border-2 border-white relative z-10 flex-shrink-0"
                       style={{ backgroundColor: `${item.color}20` }}
                     >
                       {item.imageUrl ? (
