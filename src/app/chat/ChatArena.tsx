@@ -57,6 +57,29 @@ function useIsMobile() {
   return isMobile;
 }
 
+// Keep the chat container pinned to the visual viewport so the iOS keyboard
+// never pushes the header off screen.
+function useKeyboardAwareContainer() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      if (!ref.current) return;
+      ref.current.style.height = `${vv.height}px`;
+      ref.current.style.top = `${vv.offsetTop}px`;
+    };
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+    };
+  }, []);
+  return ref;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -86,6 +109,7 @@ export default function ChatArena() {
   const [mobileTab, setMobileTab] = useState<string>('');
 
   const isMobile = useIsMobile();
+  const containerRef = useKeyboardAwareContainer();
 
   const columnRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -243,7 +267,11 @@ export default function ChatArena() {
   if (!scenarioId) return null;
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#F4F7F6] text-slate-800 w-full overflow-hidden">
+    <div
+      ref={containerRef}
+      className="flex flex-col bg-[#F4F7F6] text-slate-800 w-full overflow-hidden fixed left-0 right-0"
+      style={{ height: '100dvh', top: 0 }}
+    >
       {/* Confetti burst when someone wins */}
       <AnimatePresence>{winner && <ConfettiBurst />}</AnimatePresence>
       {/* Header */}
