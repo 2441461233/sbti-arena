@@ -7,9 +7,17 @@ import LeaderboardList from '@/components/LeaderboardList';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const leaderboard = await prisma.leaderboard.findMany({
-    orderBy: { score: 'desc' },
-  });
+  // If DB is not configured / migrations not applied yet, don't crash the whole homepage.
+  // This keeps the site accessible while deployment/env is being set up.
+  let leaderboard: any[] = [];
+  try {
+    leaderboard = await prisma.leaderboard.findMany({
+      orderBy: { score: 'desc' },
+    });
+  } catch (e) {
+    console.error('Homepage leaderboard query failed:', e);
+    leaderboard = [];
+  }
 
   // Add missing ones with 0 score
   const fullLeaderboard = personalities.map((p) => {
