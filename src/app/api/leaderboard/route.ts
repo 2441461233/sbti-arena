@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { personalities } from '@/lib/data';
+// Helper to safely extract error info without tripping strict linters
+function normalizeError(e: unknown): { message: string; code?: string } {
+  const anyE = e as any;
+  const message =
+    anyE?.message ? String(anyE.message) : 'Unknown error';
+  const code =
+    typeof anyE?.code === 'string' ? anyE.code : undefined;
+  return { message, code };
+}
 
 export async function POST(req: Request) {
   try {
@@ -22,9 +31,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(updated);
-  } catch (error) {
-    console.error('Database Error:', error);
-    return NextResponse.json({ error: 'Failed to update leaderboard' }, { status: 500 });
+  } catch (error: unknown) {
+    const { message, code } = normalizeError(error);
+    console.error('Database Error (POST /api/leaderboard):', message, code);
+    return NextResponse.json({ error: message, code }, { status: 500 });
   }
 }
 
@@ -35,8 +45,9 @@ export async function GET() {
       take: 10,
     });
     return NextResponse.json(leaderboard);
-  } catch (error) {
-    console.error('Database Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 });
+  } catch (error: unknown) {
+    const { message, code } = normalizeError(error);
+    console.error('Database Error (GET /api/leaderboard):', message, code);
+    return NextResponse.json({ error: message, code }, { status: 500 });
   }
 }
