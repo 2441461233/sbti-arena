@@ -57,25 +57,6 @@ function useIsMobile() {
   return isMobile;
 }
 
-// Keep the chat container covering exactly the visual viewport above the keyboard.
-// Uses position:fixed (prevents iOS pan) + visualViewport height updates.
-// We never touch `top` — only `height` — to avoid scroll-direction glitches.
-function useKeyboardAwareContainer() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const update = () => {
-      if (ref.current) ref.current.style.height = `${vv.height}px`;
-    };
-    update();
-    vv.addEventListener('resize', update);
-    return () => vv.removeEventListener('resize', update);
-  }, []);
-
-  return ref;
-}
 
 interface Message {
   id: string;
@@ -106,7 +87,6 @@ export default function ChatArena() {
   const [mobileTab, setMobileTab] = useState<string>('');
 
   const isMobile = useIsMobile();
-  const containerRef = useKeyboardAwareContainer();
 
   const columnRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -264,11 +244,7 @@ export default function ChatArena() {
   if (!scenarioId) return null;
 
   return (
-    <div
-      ref={containerRef}
-      className="flex flex-col bg-[#F4F7F6] text-slate-800 overflow-hidden fixed top-0 left-0 right-0"
-      style={{ height: '100dvh' }}
-    >
+    <div className="fixed inset-0 flex flex-col bg-[#F4F7F6] text-slate-800 overflow-hidden">
       {/* Confetti burst when someone wins */}
       <AnimatePresence>{winner && <ConfettiBurst />}</AnimatePresence>
       {/* Header */}
