@@ -78,7 +78,7 @@ export default function SelectPage() {
                 <p className="text-slate-500 font-medium">请选择 2-3 位你喜欢的 SBTI 人格参与竞技</p>
               </div>
 
-              <div className="flex-1 overflow-y-auto no-scrollbar pr-2 -mr-2 space-y-3 pb-28">
+              <div className="flex-1 overflow-y-auto no-scrollbar pr-2 -mr-2 space-y-3 pb-28 pt-2">
                 <div className="grid grid-cols-2 gap-4">
                   {personalities.map((p) => {
                     const isSelected = selectedPersonalities.includes(p.id);
