@@ -37,12 +37,14 @@ export default async function Home() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#88B04B] opacity-10 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#8860D0] opacity-10 rounded-full blur-[120px] pointer-events-none" />
 
-      <Link href="/personalities" className="absolute top-6 right-6 flex items-center space-x-2 px-4 py-2 text-slate-500 hover:text-slate-800 bg-white rounded-full shadow-sm hover:shadow transition-all font-bold text-sm z-20">
-        <Users className="w-4 h-4" />
-        <span>角色图鉴</span>
-      </Link>
-
       <div className="w-full max-w-2xl space-y-12 z-10 mt-8">
+        {/* 角色图鉴 — top right on desktop, inline on mobile */}
+        <div className="flex justify-end">
+          <Link href="/personalities" className="flex items-center space-x-2 px-4 py-2 text-slate-500 hover:text-slate-800 bg-white rounded-full shadow-sm hover:shadow transition-all font-bold text-sm">
+            <Users className="w-4 h-4" />
+            <span>角色图鉴</span>
+          </Link>
+        </div>
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center space-x-2 bg-white px-4 py-1.5 rounded-full shadow-sm mb-2">
             <Trophy className="w-4 h-4 text-yellow-500" />
@@ -52,8 +54,8 @@ export default async function Home() {
           <p className="text-slate-500 font-medium">全网人格大乱斗 · 选出你的终极取向</p>
         </div>
 
-        {/* Podium for Top 3 */}
-        <div className="flex items-end justify-center space-x-2 sm:space-x-4 h-[350px] pt-8 max-w-lg mx-auto">
+        {/* Podium for Top 3 — heights: 1st 165px · 2nd 100px · 3rd 55px */}
+        <div className="flex items-end justify-center space-x-2 sm:space-x-4 h-[370px] pt-8 max-w-lg mx-auto">
           {/* Rank 2 */}
           {top3[1] && (
             <div className="flex flex-col items-center justify-end w-1/3 sm:w-32 h-full group">
@@ -67,7 +69,7 @@ export default async function Home() {
                   ) : (
                     <span>{top3[1].emoji}</span>
                   )}
-                  <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 text-2xl z-30 hover:scale-110 transition-transform drop-shadow-sm">
+                  <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 text-2xl z-30 drop-shadow-sm">
                     🥈
                   </div>
                 </div>
@@ -79,8 +81,8 @@ export default async function Home() {
                   <span className="text-xs font-bold text-slate-500 pt-0.5">{top3[1].score} pts</span>
                 </div>
               </div>
-              <div className="w-full bg-gradient-to-t from-slate-200 to-slate-100 rounded-t-2xl border-t border-x border-white shadow-[inset_0_4px_10px_rgb(0,0,0,0.02)] h-[80px] flex items-start justify-center pt-3 relative overflow-hidden">
-                <span className="text-3xl font-black text-slate-300/80 drop-shadow-sm z-10">2</span>
+              <div className="w-full bg-gradient-to-t from-slate-300 to-slate-100 rounded-t-2xl border-t border-x border-white shadow-[inset_0_4px_12px_rgb(0,0,0,0.04)] h-[100px] flex items-start justify-center pt-3 relative overflow-hidden">
+                <span className="text-4xl font-black text-slate-300/70 drop-shadow-sm z-10">2</span>
               </div>
             </div>
           )}
@@ -89,8 +91,10 @@ export default async function Home() {
           {top3[0] && (
             <div className="flex flex-col items-center justify-end w-1/3 sm:w-40 h-full group z-10">
               <div className="relative mb-3 flex flex-col items-center group-hover:-translate-y-2 transition-transform">
+                {/* Crown */}
+                <div className="text-2xl sm:text-3xl mb-1 drop-shadow-md animate-bounce" style={{ animationDuration: '2.5s' }}>👑</div>
                 <div 
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-4xl sm:text-5xl shadow-[0_8px_20px_rgb(250,204,21,0.5)] border-4 border-yellow-400 z-10 relative mt-2"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-4xl sm:text-5xl shadow-[0_8px_24px_rgb(250,204,21,0.55)] border-4 border-yellow-400 z-10 relative"
                   style={{ backgroundColor: `${top3[0].color}40` }}
                 >
                   {top3[0].imageUrl ? (
@@ -98,9 +102,8 @@ export default async function Home() {
                   ) : (
                     <span>{top3[0].emoji}</span>
                   )}
-                  {/* 冠军光环特效 */}
                   <div className="absolute inset-0 rounded-full border border-white/50 pointer-events-none" />
-                  <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-3xl sm:text-4xl z-30 hover:scale-110 transition-transform drop-shadow-sm">
+                  <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-3xl sm:text-4xl z-30 drop-shadow-sm">
                     🥇
                   </div>
                 </div>
@@ -112,9 +115,8 @@ export default async function Home() {
                   <span className="text-sm font-bold text-yellow-600 pt-0.5">{top3[0].score} pts</span>
                 </div>
               </div>
-              <div className="w-full bg-gradient-to-t from-yellow-300 via-yellow-200 to-yellow-100 rounded-t-3xl border-t-2 border-x-2 border-white shadow-[inset_0_4px_10px_rgb(0,0,0,0.05)] h-[130px] flex items-start justify-center pt-4 sm:pt-6 relative overflow-hidden">
-                <span className="text-5xl font-black text-yellow-500/60 drop-shadow-md z-10">1</span>
-                {/* 奖牌高光效果 */}
+              <div className="w-full bg-gradient-to-t from-yellow-400 via-yellow-200 to-yellow-100 rounded-t-3xl border-t-2 border-x-2 border-white shadow-[inset_0_4px_14px_rgb(0,0,0,0.06)] h-[165px] flex items-start justify-center pt-5 sm:pt-7 relative overflow-hidden">
+                <span className="text-6xl font-black text-yellow-400/50 drop-shadow-md z-10">1</span>
                 <div className="absolute top-0 left-[-50%] right-[-50%] h-[200px] w-[200%] bg-white/20 -rotate-45 transform pointer-events-none" />
               </div>
             </div>
@@ -125,7 +127,7 @@ export default async function Home() {
             <div className="flex flex-col items-center justify-end w-1/3 sm:w-32 h-full group">
               <div className="relative mb-3 flex flex-col items-center group-hover:-translate-y-2 transition-transform">
                 <div 
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-3xl sm:text-4xl shadow-[0_4px_15px_rgb(205,127,50,0.4)] border-4 border-[#CD7F32] z-10 relative mt-2"
+                  className="w-14 h-14 sm:w-18 sm:h-18 rounded-full flex items-center justify-center text-2xl sm:text-3xl shadow-[0_4px_12px_rgb(205,127,50,0.35)] border-4 border-[#CD7F32] z-10 relative mt-2"
                   style={{ backgroundColor: `${top3[2].color}30` }}
                 >
                   {top3[2].imageUrl ? (
@@ -133,20 +135,20 @@ export default async function Home() {
                   ) : (
                     <span>{top3[2].emoji}</span>
                   )}
-                  <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 text-2xl z-30 hover:scale-110 transition-transform drop-shadow-sm">
+                  <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 text-xl z-30 drop-shadow-sm">
                     🥉
                   </div>
                 </div>
                 <div className="flex flex-col items-center mt-4 space-y-1">
-                  <span className="font-bold text-slate-800 text-sm sm:text-base text-center leading-none">{top3[2].name}</span>
-                  <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full text-white shadow-sm" style={{ backgroundColor: top3[2].color }}>
+                  <span className="font-bold text-slate-800 text-xs sm:text-sm text-center leading-none">{top3[2].name}</span>
+                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white shadow-sm" style={{ backgroundColor: top3[2].color }}>
                     {top3[2].title}
                   </span>
-                  <span className="text-xs font-bold text-slate-500 pt-0.5">{top3[2].score} pts</span>
+                  <span className="text-xs font-bold text-slate-400 pt-0.5">{top3[2].score} pts</span>
                 </div>
               </div>
-              <div className="w-full bg-gradient-to-t from-orange-100 to-orange-50 rounded-t-2xl border-t border-x border-white shadow-[inset_0_4px_10px_rgb(0,0,0,0.02)] h-[50px] flex items-start justify-center pt-1.5 relative overflow-hidden">
-                <span className="text-2xl font-black text-orange-200 drop-shadow-sm z-10">3</span>
+              <div className="w-full bg-gradient-to-t from-orange-200 to-orange-50 rounded-t-xl border-t border-x border-white shadow-[inset_0_4px_10px_rgb(0,0,0,0.02)] h-[55px] flex items-start justify-center pt-1.5 relative overflow-hidden">
+                <span className="text-2xl font-black text-orange-300/70 drop-shadow-sm z-10">3</span>
               </div>
             </div>
           )}
@@ -165,7 +167,7 @@ export default async function Home() {
             开始打榜 🚀
           </Link>
         </div>
-      </div>
+      </div> {/* end max-w-2xl */}
     </main>
   );
 }

@@ -1,11 +1,49 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, X, Trophy, ArrowLeft, RefreshCcw } from 'lucide-react';
 import { personalities, scenarios } from '@/lib/data';
 import Link from 'next/link';
+
+// Confetti burst on win — pure framer-motion, no extra deps
+function ConfettiBurst() {
+  const COLORS = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F7B731', '#FC5C65'];
+  const particles = useMemo(() =>
+    Array.from({ length: 48 }, (_, i) => {
+      const angle = (i / 48) * Math.PI * 2;
+      const speed = 180 + Math.random() * 320;
+      return {
+        id: i,
+        color: COLORS[i % COLORS.length],
+        x: Math.cos(angle) * speed + (Math.random() - 0.5) * 120,
+        y: Math.sin(angle) * speed * 0.6 - Math.random() * 200,
+        rotate: Math.random() * 720 - 360,
+        w: Math.random() * 10 + 6,
+        h: Math.random() * 6 + 3,
+        delay: Math.random() * 0.25,
+        duration: 1.2 + Math.random() * 0.8,
+      };
+    }),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden" aria-hidden>
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-sm"
+          style={{ backgroundColor: p.color, width: p.w, height: p.h, left: '50%', top: '45%' }}
+          initial={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
+          animate={{ x: p.x, y: p.y, opacity: 0, rotate: p.rotate, scale: 0.4 }}
+          transition={{ duration: p.duration, ease: [0.2, 0, 0.8, 1], delay: p.delay }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
@@ -206,6 +244,8 @@ export default function ChatArena() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-[#F4F7F6] text-slate-800 w-full overflow-hidden">
+      {/* Confetti burst when someone wins */}
+      <AnimatePresence>{winner && <ConfettiBurst />}</AnimatePresence>
       {/* Header */}
       <header className="flex items-center justify-between p-4 bg-white border-b border-slate-100 z-20 shadow-sm shrink-0">
         <div className="flex items-center space-x-3">
@@ -259,6 +299,14 @@ export default function ChatArena() {
             </button>
           );
         })}
+      </div>
+
+      {/* Mobile scenario info strip */}
+      <div className="flex md:hidden items-center px-4 py-1.5 bg-slate-50 border-b border-slate-100 shrink-0 gap-1.5 overflow-hidden">
+        <span className="text-[11px] font-bold text-slate-500 shrink-0">你扮演</span>
+        <span className="text-[11px] font-bold text-blue-600 shrink-0">{userRole}</span>
+        <span className="text-slate-300 text-[11px] shrink-0">·</span>
+        <span className="text-[11px] text-slate-400 truncate">{scenarioMsg}</span>
       </div>
 
       {/* Chat Columns Area */}
