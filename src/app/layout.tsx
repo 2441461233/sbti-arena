@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -15,6 +15,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "SBTI Arena · 人格竞技场",
   description: "25 种 SBTI 人格大乱斗，选出你的终极取向",
+};
+
+// interactive-widget=resizes-content tells iOS Safari to shrink the layout
+// viewport when the keyboard appears, instead of panning the page upward.
+// This keeps headers visible in full-screen chat layouts.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

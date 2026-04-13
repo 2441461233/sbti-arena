@@ -57,21 +57,12 @@ function useIsMobile() {
   return isMobile;
 }
 
-// Prevent iOS/WeChat from panning the page when the keyboard appears,
-// and keep the container height synced to the visual viewport (above the keyboard).
+// Keep the chat container covering exactly the visual viewport above the keyboard.
+// Uses position:fixed (prevents iOS pan) + visualViewport height updates.
+// We never touch `top` — only `height` — to avoid scroll-direction glitches.
 function useKeyboardAwareContainer() {
   const ref = useRef<HTMLDivElement>(null);
 
-  // Lock <html> overflow so iOS cannot pan/scroll the page itself.
-  // This keeps the header visible when the keyboard opens.
-  useEffect(() => {
-    const html = document.documentElement;
-    const prev = html.style.overflow;
-    html.style.overflow = 'hidden';
-    return () => { html.style.overflow = prev; };
-  }, []);
-
-  // Shrink/grow the container to exactly the space above the keyboard.
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
@@ -275,7 +266,7 @@ export default function ChatArena() {
   return (
     <div
       ref={containerRef}
-      className="flex flex-col bg-[#F4F7F6] text-slate-800 w-full overflow-hidden"
+      className="flex flex-col bg-[#F4F7F6] text-slate-800 overflow-hidden fixed top-0 left-0 right-0"
       style={{ height: '100dvh' }}
     >
       {/* Confetti burst when someone wins */}
