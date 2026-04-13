@@ -23,8 +23,14 @@ export default function SelectPage() {
     }
   };
 
+  const scrollToTop = () => {
+    // Reset both window scroll (iOS rubber-band) and any inner scroll containers
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  };
+
   const handleNext = () => {
     if (step === 1 && selectedPersonalities.length >= 2) {
+      scrollToTop();
       setStep(2);
     } else if (step === 2 && selectedScenario) {
       const params = new URLSearchParams();
@@ -43,7 +49,7 @@ export default function SelectPage() {
       <div className="flex-1 w-full max-w-lg mx-auto flex flex-col p-6 z-10">
         <header className="flex items-center mb-8 h-12">
           {step === 2 ? (
-            <button onClick={() => setStep(1)} className="p-2 -ml-2 rounded-full bg-white shadow-sm hover:shadow transition-all text-slate-500 hover:text-slate-800">
+            <button onClick={() => { scrollToTop(); setStep(1); }} className="p-2 -ml-2 rounded-full bg-white shadow-sm hover:shadow transition-all text-slate-500 hover:text-slate-800">
               <ArrowLeft className="w-5 h-5" />
             </button>
           ) : (
@@ -131,7 +137,7 @@ export default function SelectPage() {
                 <p className="text-slate-500 font-medium">为他们挑选一个竞技舞台</p>
               </div>
 
-              <div className="flex-1 space-y-4 pb-28">
+              <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 pb-28">
                 {scenarios.map((s) => {
                   const isSelected = selectedScenario === s.id;
                   return (

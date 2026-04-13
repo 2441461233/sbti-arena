@@ -7,7 +7,6 @@ import { Send, X, Trophy, ArrowLeft, RefreshCcw } from 'lucide-react';
 import { personalities, scenarios } from '@/lib/data';
 import Link from 'next/link';
 
-// Whether the screen is considered mobile (< 768px)
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -38,7 +37,6 @@ export default function ChatArena() {
   const [aiRole, setAiRole] = useState('');
   const [suggestedInputs, setSuggestedInputs] = useState<string[]>([]);
   
-  // We maintain separate message history for each personality for parallel columns
   const [histories, setHistories] = useState<Record<string, Message[]>>({});
   
   const [input, setInput] = useState('');
@@ -51,7 +49,6 @@ export default function ChatArena() {
 
   const isMobile = useIsMobile();
 
-  // Create refs for each column
   const columnRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -72,7 +69,6 @@ export default function ChatArena() {
       setSuggestedInputs(scenario.suggestedInputs || []);
       setUserRole(scenario.userRole || '');
       
-      // Initialize histories
       const initialHistories: Record<string, Message[]> = {};
       pIds.forEach(pid => {
         initialHistories[pid] = [
@@ -83,7 +79,7 @@ export default function ChatArena() {
     }
   }, [searchParams, router]);
 
-  // Auto scroll columns
+  // Auto scroll the active column to bottom
   useEffect(() => {
     activePersonalities.forEach(pid => {
       const el = columnRefs.current[pid];
@@ -94,8 +90,6 @@ export default function ChatArena() {
   }, [histories, activePersonalities]);
 
   useEffect(() => {
-    // As soon as there is only one personality left, persist the win.
-    // The previous `round > 1` gate could prevent saving when user eliminates quickly.
     if (activePersonalities.length === 1 && !winner) {
       handleWin(activePersonalities[0]);
     }
@@ -110,7 +104,6 @@ export default function ChatArena() {
         body: JSON.stringify({ personalityId: winId }),
       });
       if (res.ok) {
-        // 提交胜者后预取最新榜单数据，用户回到首页时数字与排名按最新值重排
         router.prefetch('/');
       } else {
         const errText = await res.text().catch(() => '');
@@ -124,7 +117,6 @@ export default function ChatArena() {
   const handleEliminate = (id: string) => {
     setActivePersonalities((prev) => {
       const next = prev.filter((p) => p !== id);
-      // If eliminating the currently viewed mobile tab, switch to first remaining
       if (id === mobileTab && next.length > 0) {
         setMobileTab(next[0]);
       }
@@ -142,7 +134,6 @@ export default function ChatArena() {
     const userMsgId = Date.now().toString();
     const assistantMsgId = (Date.now() + 1).toString();
 
-    // Optimistically add user message and loading assistant message to all active histories
     setHistories(prev => {
       const next = { ...prev };
       activePersonalities.forEach(pid => {
@@ -157,17 +148,12 @@ export default function ChatArena() {
 
     setRound(prev => prev + 1);
 
-    // Fetch in parallel
     await Promise.all(activePersonalities.map(async (pid) => {
       try {
-        // Prepare context for this specific personality
-        // Here we map histories[pid], which ALREADY includes the initial scenario.firstMessage as an 'assistant' message
-        // and does NOT include the user message we just sent (since it's only in React state update queue)
         const context = histories[pid].map(m => ({
           role: m.role,
           content: m.content
         }));
-        // We append the user message manually here
         context.push({ role: 'user', content: textToSend });
 
         const res = await fetch('/api/chat', {
@@ -184,7 +170,6 @@ export default function ChatArena() {
         setHistories(prev => {
           const next = { ...prev };
           const pHistory = [...next[pid]];
-          // Find and update the loading message
           const lastMsgIndex = pHistory.findIndex(m => m.id === assistantMsgId);
           if (lastMsgIndex !== -1) {
             pHistory[lastMsgIndex] = {
@@ -220,7 +205,7 @@ export default function ChatArena() {
   if (!scenarioId) return null;
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#F4F7F6] text-slate-800 w-full relative overflow-hidden">
+    <div className="flex flex-col h-[100dvh] bg-[#F4F7F6] text-slate-800 w-full overflow-hidden">
       {/* Header */}
       <header className="flex items-center justify-between p-4 bg-white border-b border-slate-100 z-20 shadow-sm shrink-0">
         <div className="flex items-center space-x-3">
@@ -233,73 +218,69 @@ export default function ChatArena() {
           </div>
         </div>
         
-        {/* Scenario Display in Header */}
         <div className="hidden md:flex flex-1 max-w-xl mx-8 items-center bg-slate-50 px-4 py-2 rounded-full border border-slate-100 text-xs text-slate-500 truncate font-medium">
           <span className="font-bold text-slate-700 mr-2 shrink-0">当前扮演:</span>
           <span className="font-bold text-blue-600 mr-3 shrink-0">{userRole}</span>
           <span className="font-bold text-slate-700 mr-2 shrink-0">舞台设定:</span>
           <span className="truncate">{scenarioMsg}</span>
         </div>
-
       </header>
 
-      {/* Mobile Tab Bar */}
-      {isMobile && (
-        <div className="flex border-b border-slate-200 bg-white shrink-0 z-10">
-          {activePersonalities.map((pid) => {
-            const p = personalities.find(x => x.id === pid);
-            if (!p) return null;
-            const isActive = mobileTab === pid;
-            return (
-              <button
-                key={pid}
-                onClick={() => setMobileTab(pid)}
-                className={`flex-1 flex flex-col items-center py-2 px-1 transition-colors relative ${isActive ? 'text-slate-800' : 'text-slate-400'}`}
+      {/* Mobile Tab Bar — always rendered on mobile, switch tabs instantly with no animation */}
+      <div className="flex md:hidden border-b border-slate-200 bg-white shrink-0 z-10">
+        {activePersonalities.map((pid) => {
+          const p = personalities.find(x => x.id === pid);
+          if (!p) return null;
+          const isActive = mobileTab === pid;
+          return (
+            <button
+              key={pid}
+              onClick={() => setMobileTab(pid)}
+              className={`flex-1 flex flex-col items-center py-2 px-1 transition-colors relative ${isActive ? 'text-slate-800' : 'text-slate-400'}`}
+            >
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-sm border-2 border-white shadow-sm"
+                style={{ backgroundColor: `${p.color}30` }}
               >
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm border-2 border-white shadow-sm"
-                  style={{ backgroundColor: `${p.color}30` }}
-                >
-                  {p.imageUrl ? (
-                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover rounded-full" />
-                  ) : (
-                    <span>{p.emoji}</span>
-                  )}
-                </div>
-                <span className="text-[10px] font-bold mt-0.5 truncate max-w-full px-1">{p.name}</span>
-                {isActive && (
-                  <motion.div
-                    layoutId="mobileTabIndicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                    style={{ backgroundColor: p.color }}
-                  />
+                {p.imageUrl ? (
+                  <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <span>{p.emoji}</span>
                 )}
-              </button>
-            );
-          })}
-        </div>
-      )}
+              </div>
+              <span className="text-[10px] font-bold mt-0.5 truncate max-w-full px-1">{p.name}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="mobileTabIndicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                  style={{ backgroundColor: p.color }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-      {/* Chat Area: Desktop = parallel columns, Mobile = single tab view */}
-      <div className="flex-1 flex overflow-hidden bg-slate-50/50 pb-28">
+      {/* Chat Columns Area */}
+      <div className="flex-1 flex overflow-hidden bg-slate-50/50 min-h-0">
         <AnimatePresence>
           {activePersonalities.map((pid, idx) => {
             const p = personalities.find(x => x.id === pid);
             if (!p) return null;
 
-            // On mobile, only render the active tab
-            if (isMobile && pid !== mobileTab) return null;
-
             return (
-              <motion.div 
+              <motion.div
                 key={pid}
                 initial={{ opacity: 0, width: isMobile ? '100%' : 0 }}
                 animate={{ opacity: 1, width: isMobile ? '100%' : `${100 / activePersonalities.length}%` }}
                 exit={{ opacity: 0, width: isMobile ? '100%' : 0 }}
-                className={`flex flex-col h-full border-r border-slate-200/60 relative ${idx === activePersonalities.length - 1 ? 'border-r-0' : ''}`}
+                transition={{ duration: 0.2 }}
+                className={`flex flex-col h-full border-r border-slate-200/60 relative overflow-hidden ${idx === activePersonalities.length - 1 ? 'border-r-0' : ''}`}
+                // On mobile: hide non-active tabs via display:none (instant, no ghost from enter/exit overlap)
+                style={isMobile && pid !== mobileTab ? { display: 'none' } : undefined}
               >
-                {/* Column Header: Personality Info — hidden on mobile (tab bar replaces it) */}
-                <div className={`flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm border-b border-slate-100 shrink-0 z-10 ${isMobile ? 'hidden' : 'flex'}`}>
+                {/* Desktop Column Header */}
+                <div className="hidden md:flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm border-b border-slate-100 shrink-0 z-10">
                   <div className="flex items-center space-x-3">
                     <div 
                       className="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm border-2 border-white"
@@ -326,22 +307,15 @@ export default function ChatArena() {
                       title="淘汰 TA"
                     >
                       <X className="w-3 h-3" />
-                      <span className="hidden sm:inline">淘汰 TA</span>
+                      <span>淘汰 TA</span>
                     </button>
                   )}
                 </div>
 
-                {/* Mobile column header: inline eliminate button */}
-                {isMobile && !winner && activePersonalities.length > 1 && (
-                  <div className="flex items-center justify-between px-4 py-2 bg-white/80 border-b border-slate-100 shrink-0">
+                {/* Mobile Column Sub-header: personality info + eliminate button */}
+                {!winner && activePersonalities.length > 1 && (
+                  <div className="flex md:hidden items-center justify-between px-4 py-2 bg-white/80 border-b border-slate-100 shrink-0">
                     <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs" style={{ backgroundColor: `${p.color}30` }}>
-                        {p.imageUrl ? (
-                          <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover rounded-full" />
-                        ) : (
-                          <span>{p.emoji}</span>
-                        )}
-                      </div>
                       <span className="font-black text-sm text-slate-800">{p.name}</span>
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white" style={{ backgroundColor: p.color }}>
                         {p.title}
@@ -357,7 +331,7 @@ export default function ChatArena() {
                   </div>
                 )}
 
-                {/* Column Messages */}
+                {/* Messages */}
                 <div 
                   className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar"
                   ref={el => { columnRefs.current[pid] = el; }}
@@ -398,7 +372,7 @@ export default function ChatArena() {
                       )}
                     </div>
                   ))}
-                  <div className="h-4" />
+                  <div className="h-2" />
                 </div>
               </motion.div>
             );
@@ -406,20 +380,20 @@ export default function ChatArena() {
         </AnimatePresence>
       </div>
 
-      {/* Global Input Area or Winner Area */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 sm:p-6 z-30 shadow-[0_-10px_40px_rgb(0,0,0,0.05)]">
+      {/* Input Area — in normal flow (not absolute), so it naturally pushes messages up */}
+      <div className="bg-white border-t border-slate-100 p-4 sm:p-5 z-30 shadow-[0_-8px_30px_rgb(0,0,0,0.05)] shrink-0">
         <div className="max-w-4xl mx-auto">
           {winner ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
-                  <Trophy className="w-8 h-8 text-yellow-500" />
+                <div className="w-14 h-14 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
+                  <Trophy className="w-7 h-7 text-yellow-500" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black text-slate-800">
+                  <h2 className="text-xl font-black text-slate-800">
                     胜出：{personalities.find(p => p.id === winner)?.name}
                   </h2>
-                  <p className="text-slate-500 font-medium text-sm mt-1">战力值 +1！</p>
+                  <p className="text-slate-500 font-medium text-sm mt-0.5">战力值 +1！</p>
                 </div>
               </div>
               <div className="flex space-x-3 w-full sm:w-auto">
@@ -437,52 +411,59 @@ export default function ChatArena() {
               </div>
             </motion.div>
           ) : round > 10 ? (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between py-1">
               <div>
                 <p className="text-slate-800 font-bold">已达到 10 轮上限 🛑</p>
-                <p className="text-sm text-slate-500 font-medium">请淘汰多余人格，选出最终赢家！</p>
+                <p className="text-sm text-slate-500 font-medium mt-0.5">请淘汰多余人格，选出最终赢家！</p>
               </div>
             </div>
           ) : (
             <div className="space-y-3">
-              {/* Suggested Inputs */}
-              {round === 1 && suggestedInputs.length > 0 && !loading && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-wrap gap-2 justify-center sm:justify-start"
-                >
-                  {suggestedInputs.map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSend(suggestion)}
-                      className="px-4 py-2 bg-white border border-slate-200 hover:border-slate-400 text-slate-600 hover:text-slate-800 text-sm font-medium rounded-full shadow-sm hover:shadow transition-all text-left max-w-full truncate"
-                      title={suggestion}
-                    >
-                      "{suggestion}"
-                    </button>
-                  ))}
-                </motion.div>
-              )}
+              {/* Suggested Inputs — first round only */}
+              <AnimatePresence>
+                {round === 1 && suggestedInputs.length > 0 && !loading && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex flex-wrap gap-2 justify-center sm:justify-start overflow-hidden"
+                  >
+                    {suggestedInputs.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSend(suggestion)}
+                        className="px-3 py-1.5 bg-white border border-slate-200 hover:border-slate-400 text-slate-600 hover:text-slate-800 text-xs font-medium rounded-full shadow-sm hover:shadow transition-all text-left max-w-[160px] sm:max-w-none truncate"
+                        title={suggestion}
+                      >
+                        "{suggestion}"
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
               
               {/* Main Input */}
-              <div className="flex items-center space-x-3 bg-slate-50 border-2 border-slate-200 rounded-2xl p-2 shadow-inner focus-within:border-slate-800 focus-within:bg-white transition-all">
+              <div className="flex items-center space-x-2 sm:space-x-3 bg-slate-50 border-2 border-slate-200 rounded-2xl p-2 shadow-inner focus-within:border-slate-800 focus-within:bg-white transition-all">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder={isMobile && activePersonalities.length > 1 ? `同时发给全部 ${activePersonalities.length} 位...` : `群发给 ${activePersonalities.length} 个人格...`}
+                  placeholder={
+                    isMobile && activePersonalities.length > 1
+                      ? `同时发给全部 ${activePersonalities.length} 位...`
+                      : `群发给 ${activePersonalities.length} 个人格...`
+                  }
                   disabled={loading}
-                  className="flex-1 bg-transparent px-4 py-2 outline-none text-slate-800 font-medium placeholder:text-slate-400 disabled:opacity-50 text-base"
-                  autoFocus
+                  className="flex-1 bg-transparent px-3 py-2 outline-none text-slate-800 font-medium placeholder:text-slate-400 disabled:opacity-50 text-base"
+                  autoFocus={!isMobile}
                 />
                 <button
                   onClick={() => handleSend()}
                   disabled={!input.trim() || loading}
-                  className="px-6 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-slate-800 transition-colors shadow-md flex items-center space-x-2 font-bold"
+                  className="px-5 py-2.5 bg-slate-800 text-white rounded-xl hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-slate-800 transition-colors shadow-md flex items-center space-x-2 font-bold shrink-0"
                 >
-                  <span>发送</span>
+                  <span className="hidden sm:inline">发送</span>
                   <Send className="w-4 h-4" />
                 </button>
               </div>
