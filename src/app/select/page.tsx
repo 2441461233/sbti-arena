@@ -137,7 +137,7 @@ export default function SelectPage() {
                 <p className="text-slate-500 font-medium">为他们挑选一个竞技舞台</p>
               </div>
 
-              <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 pb-28">
+              <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 pb-28 pt-2">
                 {scenarios.map((s) => {
                   const isSelected = selectedScenario === s.id;
                   return (
