@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SBTI Arena
 
-## Getting Started
+一个基于 Next.js + MiniMax 大模型驱动的 **SBTI 人格竞技场**。选择你喜欢的人格，在不同的设定场景下与他们展开对话，并通过淘汰机制选出你的最终 Pick。
 
-First, run the development server:
+## 快速开始
 
 ```bash
+npm install
+npx prisma generate
+npx prisma migrate dev
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 配置 MiniMax 大模型
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+本项目使用 MiniMax 的 `abab6.5s-chat` 模型来驱动各个人格的回复。为了让大模型正常工作，你需要配置 API Key。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. 获取 API Key
+1. 访问 [MiniMax 开放平台](https://platform.minimaxi.com/) 并注册登录。
+2. 进入“账户管理” -> “API Keys”。
+3. 点击“创建 API Key”，复制生成的 Key。
 
-## Learn More
+### 2. 配置环境变量
+在项目的根目录下创建一个 `.env` 文件（如果还没有的话），并将你的 API Key 填入：
 
-To learn more about Next.js, take a look at the following resources:
+```env
+DATABASE_URL="file:./dev.db"
+MINIMAX_API_KEY="在这里填入你刚刚复制的_API_KEY"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+保存后，重启开发服务器 (`npm run dev`)，大模型就可以正常输出回复了。
