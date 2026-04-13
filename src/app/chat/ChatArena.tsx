@@ -57,26 +57,32 @@ function useIsMobile() {
   return isMobile;
 }
 
-// Keep the chat container pinned to the visual viewport so the iOS keyboard
-// never pushes the header off screen.
+// Prevent iOS/WeChat from panning the page when the keyboard appears,
+// and keep the container height synced to the visual viewport (above the keyboard).
 function useKeyboardAwareContainer() {
   const ref = useRef<HTMLDivElement>(null);
+
+  // Lock <html> overflow so iOS cannot pan/scroll the page itself.
+  // This keeps the header visible when the keyboard opens.
+  useEffect(() => {
+    const html = document.documentElement;
+    const prev = html.style.overflow;
+    html.style.overflow = 'hidden';
+    return () => { html.style.overflow = prev; };
+  }, []);
+
+  // Shrink/grow the container to exactly the space above the keyboard.
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
     const update = () => {
-      if (!ref.current) return;
-      ref.current.style.height = `${vv.height}px`;
-      ref.current.style.top = `${vv.offsetTop}px`;
+      if (ref.current) ref.current.style.height = `${vv.height}px`;
     };
     update();
     vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-    return () => {
-      vv.removeEventListener('resize', update);
-      vv.removeEventListener('scroll', update);
-    };
+    return () => vv.removeEventListener('resize', update);
   }, []);
+
   return ref;
 }
 
@@ -269,8 +275,8 @@ export default function ChatArena() {
   return (
     <div
       ref={containerRef}
-      className="flex flex-col bg-[#F4F7F6] text-slate-800 w-full overflow-hidden fixed left-0 right-0"
-      style={{ height: '100dvh', top: 0 }}
+      className="flex flex-col bg-[#F4F7F6] text-slate-800 w-full overflow-hidden"
+      style={{ height: '100dvh' }}
     >
       {/* Confetti burst when someone wins */}
       <AnimatePresence>{winner && <ConfettiBurst />}</AnimatePresence>
@@ -409,7 +415,7 @@ export default function ChatArena() {
 
                 {/* Messages */}
                 <div 
-                  className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar"
+                  className="flex-1 overflow-y-auto overscroll-y-contain p-4 space-y-6 no-scrollbar"
                   ref={el => { columnRefs.current[pid] = el; }}
                 >
                   {histories[pid]?.map((msg) => (
