@@ -77,7 +77,9 @@ export default function ChatArena() {
   }, [histories, activePersonalities]);
 
   useEffect(() => {
-    if (activePersonalities.length === 1 && !winner && round > 1) {
+    // As soon as there is only one personality left, persist the win.
+    // The previous `round > 1` gate could prevent saving when user eliminates quickly.
+    if (activePersonalities.length === 1 && !winner) {
       handleWin(activePersonalities[0]);
     }
   }, [activePersonalities, winner, round]);
@@ -93,6 +95,9 @@ export default function ChatArena() {
       if (res.ok) {
         // 提交胜者后预取最新榜单数据，用户回到首页时数字与排名按最新值重排
         router.prefetch('/');
+      } else {
+        const errText = await res.text().catch(() => '');
+        console.error('Leaderboard update failed:', res.status, errText);
       }
     } catch (e) {
       console.error(e);
